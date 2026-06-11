@@ -159,7 +159,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-black">
       <header className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-950">
         <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-          LEED Rainfall Events Data Tool
+          Rainfall Events Toolkit (RET)
         </h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
           Pick a project location, pull historical NOAA daily rainfall and

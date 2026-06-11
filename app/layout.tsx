@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LEED Rainfall Events Data Tool",
+  title: "Rainfall Events Toolkit (RET)",
   description:
-    "Pull NOAA historical rainfall and Atlas 14 design storm data by map location for LEED SS Credit: Rainwater Management.",
+    "Rainfall Events Toolkit (RET): pull NOAA historical rainfall and Atlas 14 design storm data by map location for LEED SS Credit: Rainwater Management.",
 };
 
 export default function RootLayout({
