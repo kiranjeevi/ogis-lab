@@ -21,6 +21,7 @@ const MapPicker = dynamic(() => import("@/components/MapPicker"), {
 });
 
 const TOKEN_STORAGE_KEY = "noaa_cdo_token";
+const EMAIL_STORAGE_KEY = "noaa_cdo_email";
 const DEFAULT_POSITION: LatLng = { lat: 38.8951, lon: -77.0364 }; // Washington, DC
 
 const currentYear = new Date().getFullYear();
@@ -32,9 +33,14 @@ export default function Home() {
   const [latInput, setLatInput] = useState(String(DEFAULT_POSITION.lat));
   const [lonInput, setLonInput] = useState(String(DEFAULT_POSITION.lon));
   const [token, setToken] = useState("");
+  const [email, setEmail] = useState("");
+  const [tokenRequestLoading, setTokenRequestLoading] = useState(false);
+  const [tokenRequestMessage, setTokenRequestMessage] = useState<string | null>(null);
+  const [tokenRequestError, setTokenRequestError] = useState<string | null>(null);
 
   useEffect(() => {
     setToken(window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? "");
+    setEmail(window.localStorage.getItem(EMAIL_STORAGE_KEY) ?? "");
   }, []);
   const [startYear, setStartYear] = useState(DEFAULT_START_YEAR);
   const [endYear, setEndYear] = useState(DEFAULT_END_YEAR);
@@ -67,6 +73,31 @@ export default function Home() {
   function handleTokenChange(value: string) {
     setToken(value);
     window.localStorage.setItem(TOKEN_STORAGE_KEY, value);
+  }
+
+  function handleEmailChange(value: string) {
+    setEmail(value);
+    window.localStorage.setItem(EMAIL_STORAGE_KEY, value);
+  }
+
+  async function requestToken() {
+    setTokenRequestError(null);
+    setTokenRequestMessage(null);
+    setTokenRequestLoading(true);
+    try {
+      const res = await fetch("/api/noaa-token-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to request token");
+      setTokenRequestMessage(data.message);
+    } catch (err) {
+      setTokenRequestError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setTokenRequestLoading(false);
+    }
   }
 
   function applyManualCoordinates() {
@@ -305,13 +336,42 @@ export default function Home() {
               leave this blank. If you hit rate limits, enter your own free
               token for dedicated quota.
             </p>
+            <label className="mt-3 flex flex-col text-xs text-zinc-600 dark:text-zinc-400">
+              Email (for requesting your own token)
+              <div className="mt-1 flex gap-2">
+                <input
+                  type="email"
+                  className="flex-1 rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                  value={email}
+                  onChange={(e) => handleEmailChange(e.target.value)}
+                  placeholder="you@example.com"
+                />
+                <button
+                  onClick={requestToken}
+                  disabled={tokenRequestLoading || !email.trim()}
+                  className="rounded bg-zinc-900 px-3 py-1 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+                >
+                  {tokenRequestLoading ? "Requesting..." : "Request token"}
+                </button>
+              </div>
+            </label>
+            {tokenRequestMessage && (
+              <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                {tokenRequestMessage}
+              </p>
+            )}
+            {tokenRequestError && (
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                {tokenRequestError}
+              </p>
+            )}
             <a
               href="https://www.ncdc.noaa.gov/cdo-web/token"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-1 inline-block text-xs text-blue-600 hover:underline dark:text-blue-400"
             >
-              Request a free NOAA CDO API token
+              Or request a token on NOAA's website
             </a>
 
             <div className="mt-3 flex gap-2">
