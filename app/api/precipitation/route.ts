@@ -7,13 +7,13 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const stationId = searchParams.get("stationId") ?? "";
   const stationName = searchParams.get("stationName") ?? stationId;
-  const token = searchParams.get("token") ?? "";
+  const token = searchParams.get("token") || process.env.NOAA_CDO_TOKEN || "";
   const startYear = parseInt(searchParams.get("startYear") ?? "", 10);
   const endYear = parseInt(searchParams.get("endYear") ?? "", 10);
 
   if (!stationId || !token) {
     return NextResponse.json(
-      { error: "stationId and token query parameters are required" },
+      { error: "stationId and a NOAA CDO API token are required" },
       { status: 400 }
     );
   }
