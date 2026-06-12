@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   LatLng,
@@ -31,11 +31,11 @@ export default function Home() {
   const [position, setPositionState] = useState<LatLng>(DEFAULT_POSITION);
   const [latInput, setLatInput] = useState(String(DEFAULT_POSITION.lat));
   const [lonInput, setLonInput] = useState(String(DEFAULT_POSITION.lon));
-  const [token, setToken] = useState(() =>
-    typeof window === "undefined"
-      ? ""
-      : window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? ""
-  );
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    setToken(window.localStorage.getItem(TOKEN_STORAGE_KEY) ?? "");
+  }, []);
   const [startYear, setStartYear] = useState(DEFAULT_START_YEAR);
   const [endYear, setEndYear] = useState(DEFAULT_END_YEAR);
 
@@ -332,7 +332,7 @@ export default function Home() {
 
             <button
               onClick={findStations}
-              disabled={!token || stationsLoading}
+              disabled={stationsLoading}
               className="mt-3 w-full rounded bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
             >
               {stationsLoading ? "Searching..." : "Find Nearby Stations"}
