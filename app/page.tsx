@@ -287,14 +287,19 @@ export default function Home() {
               NOAA Settings
             </h2>
             <label className="flex flex-col text-xs text-zinc-600 dark:text-zinc-400">
-              NOAA CDO API Token
+              NOAA CDO API Token (optional)
               <input
                 className="mt-1 rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                 value={token}
                 onChange={(e) => handleTokenChange(e.target.value)}
-                placeholder="Get a free token at ncdc.noaa.gov/cdo-web/token"
+                placeholder="Uses a shared server token if left blank"
               />
             </label>
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              This tool ships with a server-side NOAA token, so most users can
+              leave this blank. If you hit rate limits, enter your own free
+              token for dedicated quota.
+            </p>
             <a
               href="https://www.ncdc.noaa.gov/cdo-web/token"
               target="_blank"

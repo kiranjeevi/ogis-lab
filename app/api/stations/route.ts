@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const lat = parseFloat(searchParams.get("lat") ?? "");
   const lon = parseFloat(searchParams.get("lon") ?? "");
-  const token = searchParams.get("token") ?? "";
+  const token = searchParams.get("token") || process.env.NOAA_CDO_TOKEN || "";
 
   if (Number.isNaN(lat) || Number.isNaN(lon)) {
     return NextResponse.json(
