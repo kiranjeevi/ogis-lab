@@ -205,7 +205,12 @@ export default function Home() {
 
       <main className="flex flex-1 flex-col gap-4 p-4 lg:flex-row">
         <section className="h-[400px] w-full overflow-hidden rounded-lg border border-zinc-200 lg:h-auto lg:flex-1 dark:border-zinc-800">
-          <MapPicker position={position} onChange={setPosition} />
+          <MapPicker
+            position={position}
+            onChange={setPosition}
+            stations={stations}
+            selectedStationId={selectedStationId}
+          />
         </section>
 
         <section className="flex w-full flex-col gap-4 lg:w-[420px]">
