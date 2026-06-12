@@ -44,6 +44,13 @@ export default function Home() {
   const [stationsLoading, setStationsLoading] = useState(false);
   const [stationsError, setStationsError] = useState<string | null>(null);
 
+  const [addressQuery, setAddressQuery] = useState("");
+  const [addressResults, setAddressResults] = useState<
+    { label: string; lat: number; lon: number }[]
+  >([]);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [addressError, setAddressError] = useState<string | null>(null);
+
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [daily, setDaily] = useState<DailyPrecip[] | null>(null);
@@ -67,6 +74,34 @@ export default function Home() {
     const lon = parseFloat(lonInput);
     if (Number.isNaN(lat) || Number.isNaN(lon)) return;
     setPosition({ lat, lon });
+  }
+
+  async function searchAddress() {
+    const query = addressQuery.trim();
+    if (!query) return;
+    setAddressError(null);
+    setAddressResults([]);
+    setAddressLoading(true);
+    try {
+      const params = new URLSearchParams({ q: query });
+      const res = await fetch(`/api/geocode?${params.toString()}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to search address");
+      setAddressResults(data.results);
+      if (data.results.length === 0) {
+        setAddressError("No matches found.");
+      }
+    } catch (err) {
+      setAddressError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setAddressLoading(false);
+    }
+  }
+
+  function selectAddressResult(result: { label: string; lat: number; lon: number }) {
+    setPosition({ lat: result.lat, lon: result.lon });
+    setAddressQuery(result.label);
+    setAddressResults([]);
   }
 
   async function findStations() {
@@ -179,10 +214,53 @@ export default function Home() {
               Project Location
             </h2>
             <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-              Click the map to set the project location, or enter coordinates
+              Search for an address, click the map, or enter coordinates
               directly.
             </p>
-            <div className="flex gap-2">
+
+            <label className="flex flex-col text-xs text-zinc-600 dark:text-zinc-400">
+              Address or place
+              <div className="mt-1 flex gap-2">
+                <input
+                  className="flex-1 rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                  value={addressQuery}
+                  onChange={(e) => setAddressQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      searchAddress();
+                    }
+                  }}
+                  placeholder="e.g. 1600 Pennsylvania Ave, Washington, DC"
+                />
+                <button
+                  onClick={searchAddress}
+                  disabled={addressLoading || !addressQuery.trim()}
+                  className="rounded bg-zinc-900 px-3 py-1 text-sm font-medium text-white disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+                >
+                  {addressLoading ? "Searching..." : "Search"}
+                </button>
+              </div>
+            </label>
+            {addressError && (
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{addressError}</p>
+            )}
+            {addressResults.length > 0 && (
+              <ul className="mt-2 divide-y divide-zinc-200 rounded border border-zinc-300 text-xs dark:divide-zinc-700 dark:border-zinc-700">
+                {addressResults.map((r, i) => (
+                  <li key={i}>
+                    <button
+                      onClick={() => selectAddressResult(r)}
+                      className="block w-full px-2 py-1.5 text-left hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    >
+                      {r.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="mt-3 flex gap-2">
               <label className="flex flex-1 flex-col text-xs text-zinc-600 dark:text-zinc-400">
                 Latitude
                 <input
