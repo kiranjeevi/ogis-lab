@@ -25,8 +25,8 @@ function dotIcon(color: string, size: number) {
   });
 }
 
-const stationIcon = dotIcon("#71717a", 12);
-const selectedStationIcon = dotIcon("#f59e0b", 16);
+const stationIcon = dotIcon("#2563eb", 14);
+const selectedStationIcon = dotIcon("#f59e0b", 18);
 
 interface MapPickerProps {
   position: LatLng;
